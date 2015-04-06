@@ -1,0 +1,276 @@
+JFDML JFormDesigner: "5.2.1.0.138" Java: "1.8.0_25" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+			"$columnSpecs": "unrelgap, right:max(default;65dlu), 3dlu, 60dlu, 3dlu, default, 7dlu, 60dlu, 3dlu, default:grow, unrelgap"
+			"$rowSpecs": "pargap, default, pargap, default, linegap, default, linegap, default, pargap, default, linegap, default, linegap, default, linegap, fill:50dlu:grow, linegap, default, pargap"
+		} ) {
+			name: "this"
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "jrePathLabel"
+				"text": "$jrePath"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 2
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "jreMinLabel"
+				"text": "$jreMin"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 6
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "jreMaxLabel"
+				"text": "$jreMax"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 8
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "jvmOptionsTextLabel"
+				"text": "$jvmOptions"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 16
+				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints TOP
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "jreMinField"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 4
+				"gridY": 6
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "jreMaxField"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 4
+				"gridY": 8
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane1"
+				add( new FormComponent( "javax.swing.JTextArea" ) {
+					name: "jvmOptionsTextArea"
+					"toolTipText": "$jvmOptionsTip"
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 4
+				"gridY": 16
+				"gridWidth": 7
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "initialHeapSizeLabel"
+				"text": "$initialHeapSize"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 12
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "maxHeapSizeLabel"
+				"text": "$maxHeapSize"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 14
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label1"
+				"text": "MB"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 6
+				"gridY": 12
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label2"
+				"text": "MB"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 6
+				"gridY": 14
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "initialHeapSizeField"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 4
+				"gridY": 12
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "maxHeapSizeField"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 4
+				"gridY": 14
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "maxHeapPercentField"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 8
+				"gridY": 14
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "initialHeapPercentField"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 8
+				"gridY": 12
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "jdkPreferenceCombo"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 8
+				"gridY": 6
+				"gridWidth": 3
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label3"
+				"text": "$availableMemory"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 10
+				"gridY": 12
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label4"
+				"text": "$availableMemory"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 10
+				"gridY": 14
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "runtimeBitsCombo"
+				"toolTipText": ""
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 8
+				"gridY": 8
+				"gridWidth": 3
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "right:max(default;65dlu), labelcompgap, default:grow, labelcompgap, default, labelcompgap, default"
+				"$rowSpecs": "default, linegap, default"
+			} ) {
+				name: "panel1"
+				add( new FormComponent( "javax.swing.JComboBox" ) {
+					name: "varCombo"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "propertyButton"
+					"actionCommand": "Add"
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "images/edit_add16.png" )
+					"text": "$property"
+					"toolTipText": "$propertyTip"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "optionButton"
+					"actionCommand": "Add"
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "images/edit_add16.png" )
+					"text": "$option"
+					"toolTipText": "$optionTip"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 7
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "envPropertyButton"
+					"actionCommand": "Add"
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "images/edit_add16.png" )
+					"text": "$property"
+					"toolTipText": "$propertyTip"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+					"gridY": 3
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "label5"
+					"text": "$varsAndRegistry"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "label6"
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "images/asterix.gif" )
+					"text": "$envVar"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 3
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "envOptionButton"
+					"actionCommand": "Add"
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "images/edit_add16.png" )
+					"text": "$option"
+					"toolTipText": "$optionTip"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 7
+					"gridY": 3
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "envVarField"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 3
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 18
+				"gridWidth": 9
+			} )
+			add( new FormComponent( "com.jformdesigner.designer.wrapper.JGoodiesFormsSeparator" ) {
+				name: "separator1"
+				"text": "$searchOptions"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 4
+				"gridWidth": 9
+			} )
+			add( new FormComponent( "com.jformdesigner.designer.wrapper.JGoodiesFormsSeparator" ) {
+				name: "separator2"
+				"text": "$options"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 10
+				"gridWidth": 9
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default:grow, labelcompgap, default, labelcompgap, default"
+				"$rowSpecs": "default"
+			} ) {
+				name: "panel2"
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "jrePathField"
+					"toolTipText": "$jrePathTip"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JCheckBox" ) {
+					name: "bundledJre64BitCheck"
+					"actionCommand": "$bundledJre64Bit"
+					"text": "$bundledJre64Bit"
+					"toolTipText": "$bundledJre64BitTip"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JCheckBox" ) {
+					name: "bundledJreAsFallbackCheck"
+					"actionCommand": "$bundledJreAsFallback"
+					"text": "$bundledJreAsFallback"
+					"toolTipText": "$bundledJreAsFallbackTip"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+					"gridY": 1
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 4
+				"gridY": 2
+				"gridWidth": 7
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+		} )
+	}
+}

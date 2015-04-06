@@ -1,0 +1,30 @@
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = 
+OBJ  = ../../head/guihead.o ../../head/head.o $(RES)
+LINKOBJ  = ../../head/guihead.o ../../head/head.o $(RES)
+LIBS =  -L"C:/MinGW/lib" -L"../curl/lib" -lcurldll -mwindows -n  -s
+INCS =  -I"C:/MinGW/include" -I"..\curl\include"
+CXXINCS =  -I"C:/MinGW/include" -I"..\curl\include"
+BIN  = guihead.exe
+CXXFLAGS = $(CXXINCS)   -fexpensive-optimizations -O3 -g -Wall
+CFLAGS = $(INCS)   -fexpensive-optimizations -O3 -g -Wall
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before guihead.exe all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+#	$(CC) $(LINKOBJ) -o "guihead.exe" $(LIBS)
+
+../../head/guihead.o: guihead.c
+	$(CC) -c guihead.c -o ../../head/guihead.o $(CFLAGS)
+
+../../head/head.o: ../head.c
+	$(CC) -c ../head.c -o ../../head/head.o $(CFLAGS)
