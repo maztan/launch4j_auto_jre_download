@@ -1,32 +1,32 @@
 /*
-	Launch4j (http://launch4j.sourceforge.net/)
-	Cross-platform Java application wrapper for creating Windows native executables.
+ Launch4j (http://launch4j.sourceforge.net/)
+ Cross-platform Java application wrapper for creating Windows native executables.
 
-	Copyright (c) 2004, 2015 Grzegorz Kowal,
-							 Ian Roberts (jdk preference patch)
+ Copyright (c) 2004, 2015 Grzegorz Kowal,
+ Ian Roberts (jdk preference patch)
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-	Except as contained in this notice, the name(s) of the above copyright holders
-	shall not be used in advertising or otherwise to promote the sale, use or other
-	dealings in this Software without prior written authorization.
+ Except as contained in this notice, the name(s) of the above copyright holders
+ shall not be used in advertising or otherwise to promote the sale, use or other
+ dealings in this Software without prior written authorization.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
-*/
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 #ifndef _LAUNCH4J_HEAD__INCLUDED_
 #define _LAUNCH4J_HEAD__INCLUDED_
@@ -50,6 +50,10 @@
 #include <io.h>
 #include <process.h>
 #include <curl/curl.h>
+#include <winbase.h>
+
+#define DISPLAY_MESSAGE_LABEL 0
+#define DISPLAY_MESSAGE_DIALOG_YES_NO 1
 
 #define LAUNCH4j "Launch4j"
 #define VERSION "3.7"
@@ -88,14 +92,16 @@
 #define FALSE_STR "false"
 
 #define ERROR_FORMAT "Error:\t\t%s\n"
-#define debug(args...) if (hLog != NULL) fprintf(hLog, ## args);
+#define debug(args...) if (hLog != NULL) {fprintf(hLog, ## args); fflush(hLog);}
 
-typedef void (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+typedef void (WINAPI *LPFN_ISWOW64PROCESS)(HANDLE, PBOOL);
 
+void (*jreDownloadCallbackFunction)(double, double, BOOL);
 BOOL initGlobals();
 FILE* openLogFile(const char* exePath, const int pathLen);
 void closeLogFile();
-BOOL initializeLogging(const char *lpCmdLine, const char* exePath, const int pathLen);
+BOOL initializeLogging(const char *lpCmdLine, const char* exePath,
+		const int pathLen);
 void msgBox(const char* text);
 void signalError();
 BOOL loadString(const int resID, char* buffer);
@@ -114,7 +120,8 @@ int getExePath(char* exePath);
 void appendPath(char* basepath, const char* path);
 void appendLauncher(char* jrePath);
 void appendAppClasspath(char* dst, const char* src);
-BOOL expandVars(char *dst, const char *src, const char *exePath, const int pathLen);
+BOOL expandVars(char *dst, const char *src, const char *exePath,
+		const int pathLen);
 void appendHeapSizes(char *dst);
 void appendHeapSize(char *dst, const int megabytesID, const int percentID,
 		const DWORDLONG availableMemory, const char *option);
@@ -132,6 +139,18 @@ void setMainClassAndClassPath(const char *exePath, const int pathLen);
 void setCommandLineArgs(const char *lpCmdLine);
 int prepare(const char *lpCmdLine);
 void closeProcessHandles();
-BOOL execute(const BOOL wait, DWORD *dwExitCode);
 
+BOOL downloadAndInstallJre();
+void setWow64Flag();
+void setConsoleFlag();
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream);
+
+int curl_progress_func(BOOL *isNewDownload, double t, double d, double ultotal,
+		double ulnow);
+BOOL downloadURL(char* url, char* file, char* cookie);
+
+BOOL execute(const BOOL wait, DWORD *dwExitCode);
+void setJreDownloadProgressCallback(void (*f)(double, double, BOOL));
+void setDisplayMessageCallback(
+		BOOL (*f)(int messageType, const char* messageText));
 #endif // _LAUNCH4J_HEAD__INCLUDED_

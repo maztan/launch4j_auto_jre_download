@@ -52,64 +52,66 @@ import net.sf.launch4j.config.Jre;
  * @author Copyright (C) 2006 Grzegorz Kowal
  */
 public class JreFormImpl extends JreForm {
-
 	public JreFormImpl(Bindings bindings, JFileChooser fc) {
-		_jdkPreferenceCombo.setModel(new DefaultComboBoxModel(new String[] {
+		jdkPreferenceCombo.setModel(new DefaultComboBoxModel(new String[] {
 				Messages.getString("jdkPreference.jre.only"),
 				Messages.getString("jdkPreference.prefer.jre"),
 				Messages.getString("jdkPreference.prefer.jdk"),
 				Messages.getString("jdkPreference.jdk.only")}));
 
-		_runtimeBitsCombo.setModel(new DefaultComboBoxModel(new String[] {
+		runtimeBitsCombo.setModel(new DefaultComboBoxModel(new String[] {
 				Messages.getString("runtimeBits.64"),
 				Messages.getString("runtimeBits.64And32"),
 				Messages.getString("runtimeBits.32And64"),
 				Messages.getString("runtimeBits.32")}));
 
-		bindings.add("jre.path", _jrePathField)
-				.add("jre.bundledJre64Bit", _bundledJre64BitCheck)
-				.add("jre.bundledJreAsFallback", _bundledJreAsFallbackCheck)
-				.add("jre.minVersion", _jreMinField)
-				.add("jre.maxVersion", _jreMaxField)
-				.add("jre.jdkPreferenceIndex", _jdkPreferenceCombo,	Jre.DEFAULT_JDK_PREFERENCE_INDEX)
-				.add("jre.runtimeBitsIndex", _runtimeBitsCombo, Jre.DEFAULT_JDK_PREFERENCE_INDEX)
-				.add("jre.initialHeapSize", _initialHeapSizeField)
-				.add("jre.initialHeapPercent", _initialHeapPercentField)
-				.add("jre.maxHeapSize", _maxHeapSizeField)
-				.add("jre.maxHeapPercent", _maxHeapPercentField)
-				.add("jre.options", _jvmOptionsTextArea);
+		bindings.add("jre.path", jrePathField)
+				.add("jre.bundledJre64Bit", bundledJre64BitCheck)
+				.add("jre.bundledJreAsFallback", bundledJreAsFallbackCheck)
+				.add("jre.jreDownloadUrl", jreDownloadUrlField)
+				.add("jre.downloadAndInstallJre", downloadAndInstallJreCheck)
+				.add("jre.jreDownloadCookie", jreDownloadCookieField)
+				.add("jre.minVersion", jreMinField)
+				.add("jre.maxVersion", jreMaxField)
+				.add("jre.jdkPreferenceIndex", jdkPreferenceCombo,	Jre.DEFAULT_JDK_PREFERENCE_INDEX)
+				.add("jre.runtimeBitsIndex", runtimeBitsCombo, Jre.DEFAULT_JDK_PREFERENCE_INDEX)
+				.add("jre.initialHeapSize", initialHeapSizeField)
+				.add("jre.initialHeapPercent", initialHeapPercentField)
+				.add("jre.maxHeapSize", maxHeapSizeField)
+				.add("jre.maxHeapPercent", maxHeapPercentField)
+				.add("jre.options", jvmOptionsTextArea);
 
-		_varCombo.setModel(new DefaultComboBoxModel(new String[] {
+	 varCombo.setModel(new DefaultComboBoxModel(new String[] {
 				"EXEDIR", "EXEFILE", "PWD", "OLDPWD", "JREHOMEDIR",
 				"HKEY_CLASSES_ROOT", "HKEY_CURRENT_USER", "HKEY_LOCAL_MACHINE",
 				"HKEY_USERS", "HKEY_CURRENT_CONFIG" }));
 
-		_varCombo.addActionListener(new VarComboActionListener());
-		_varCombo.setSelectedIndex(0);
+	 varCombo.addActionListener(new VarComboActionListener());
+	 varCombo.setSelectedIndex(0);
 
-		_propertyButton.addActionListener(new PropertyActionListener());
-		_optionButton.addActionListener(new OptionActionListener());
+	 propertyButton.addActionListener(new PropertyActionListener());
+	 optionButton.addActionListener(new OptionActionListener());
 
-		_envPropertyButton.addActionListener(new EnvPropertyActionListener(_envVarField));
-		_envOptionButton.addActionListener(new EnvOptionActionListener(_envVarField));
+	 envPropertyButton.addActionListener(new EnvPropertyActionListener(envVarField));
+	 envOptionButton.addActionListener(new EnvOptionActionListener(envVarField));
 	}
 
 	private class VarComboActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			_optionButton.setEnabled(((String) _varCombo.getSelectedItem())
+		 optionButton.setEnabled(((String) varCombo.getSelectedItem())
 					.startsWith("HKEY_"));
 		}
 	}
 
 	private class PropertyActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			final int pos = _jvmOptionsTextArea.getCaretPosition();
-			final String var = (String) _varCombo.getSelectedItem();
+			final int pos = jvmOptionsTextArea.getCaretPosition();
+			final String var = (String) varCombo.getSelectedItem();
 			if (var.startsWith("HKEY_")) {
-				_jvmOptionsTextArea.insert("-Dreg.key=\"%"
+			 jvmOptionsTextArea.insert("-Dreg.key=\"%"
 						+ var + "\\...%\"\n", pos);
 			} else {
-				_jvmOptionsTextArea.insert("-Dlaunch4j." + var.toLowerCase()
+			 jvmOptionsTextArea.insert("-Dlaunch4j." + var.toLowerCase()
 						+ "=\"%" + var + "%\"\n", pos);
 			}
 		}
@@ -117,12 +119,12 @@ public class JreFormImpl extends JreForm {
 
 	private class OptionActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			final int pos = _jvmOptionsTextArea.getCaretPosition();
-			final String var = (String) _varCombo.getSelectedItem();
+			final int pos = jvmOptionsTextArea.getCaretPosition();
+			final String var = (String) varCombo.getSelectedItem();
 			if (var.startsWith("HKEY_")) {
-				_jvmOptionsTextArea.insert("%" + var + "\\...%\n", pos);
+			 jvmOptionsTextArea.insert("%" + var + "\\...%\n", pos);
 			} else {
-				_jvmOptionsTextArea.insert("%" + var + "%\n", pos);
+			 jvmOptionsTextArea.insert("%" + var + "%\n", pos);
 			}
 		}
 	}
@@ -133,7 +135,7 @@ public class JreFormImpl extends JreForm {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			final int pos = _jvmOptionsTextArea.getCaretPosition();
+			final int pos = jvmOptionsTextArea.getCaretPosition();
 			final String var = getText()
 					.replaceAll("\"", "")
 					.replaceAll("%", "");
@@ -158,7 +160,7 @@ public class JreFormImpl extends JreForm {
 					.replaceAll(" ", ".")
 					.replaceAll("_", ".")
 					.toLowerCase();
-			_jvmOptionsTextArea.insert("-Denv." + prop + "=\"%" + var
+		 jvmOptionsTextArea.insert("-Denv." + prop + "=\"%" + var
 					+ "%\"\n", pos);
 		}
 	}
@@ -169,7 +171,7 @@ public class JreFormImpl extends JreForm {
 		}
 
 		protected void add(String var, int pos) {
-			_jvmOptionsTextArea.insert("%" + var + "%\n", pos);	
+		 jvmOptionsTextArea.insert("%" + var + "%\n", pos);	
 		}
 	}
 }

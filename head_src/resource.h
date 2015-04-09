@@ -1,32 +1,32 @@
 /*
-	Launch4j (http://launch4j.sourceforge.net/)
-	Cross-platform Java application wrapper for creating Windows native executables.
+ Launch4j (http://launch4j.sourceforge.net/)
+ Cross-platform Java application wrapper for creating Windows native executables.
 
-	Copyright (c) 2004, 2014 Grzegorz Kowal
-							 Ian Roberts (jdk preference patch)
+ Copyright (c) 2004, 2014 Grzegorz Kowal
+ Ian Roberts (jdk preference patch)
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-	Except as contained in this notice, the name(s) of the above copyright holders
-	shall not be used in advertising or otherwise to promote the sale, use or other
-	dealings in this Software without prior written authorization.
+ Except as contained in this notice, the name(s) of the above copyright holders
+ shall not be used in advertising or otherwise to promote the sale, use or other
+ dealings in this Software without prior written authorization.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
-*/
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 // ICON
 #define APP_ICON 					1
@@ -67,10 +67,24 @@
 #define RUNTIME_BITS				30
 #define RESTART_ON_CRASH			31
 #define BUNDLED_JRE_AS_FALLBACK		32
+#define JRE_DOWNLOAD_URL			33
+#define DOWNLOAD_AND_INSTALL_JRE	34
+#define JRE_DOWNLOAD_COOKIE			35
 
 #define STARTUP_ERR					101
 #define BUNDLED_JRE_ERR				102
 #define JRE_VERSION_ERR				103
 #define LAUNCHER_ERR				104
 #define INSTANCE_ALREADY_EXISTS_MSG	105
-#define JRE_VERSION_ERR_WILL_DOWNLOAD 106
+
+#define MESSAGE_DOWNLOADING_JRE		201
+#define MESSAGE_INSTALLING_JRE	    202
+#define MESSAGE_JRE_INSTALLED		203
+#define MESSAGE_COULD_NOT_DOWNLOAD_JRE_INSTALLER	204
+#define MESSAGE_LOOKING_FOR_JRE		205
+#define MESSAGE_REQUIRED_VERSION_OF_JRE_NOT_FOUND	206
+#define MESSAGE_QUESTION_IF_DOWNLOAD_AND_INSTALL_JRE	207
+#define MESSAGE_COULD_NOT_FIND_OR_INSTALL_JRE 208
+#define MESSAGE_STARTING_MAIN_INSTALLER	209
+
+

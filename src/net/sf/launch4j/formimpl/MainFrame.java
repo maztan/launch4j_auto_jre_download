@@ -102,6 +102,7 @@ public class MainFrame extends JFrame {
 			_instance = new MainFrame();
 		} catch (Exception e) {
 			System.err.println(e);
+			e.printStackTrace();
 		}
 	}
 

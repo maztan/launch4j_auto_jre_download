@@ -48,7 +48,6 @@ public class Msg implements IValidatable {
 	private String jreVersionErr;
 	private String launcherErr;
 	private String instanceAlreadyExistsMsg;
-	private String jreVersionErrWillDownload;
 
 	public void checkInvariants() {
 		Validator.checkOptString(startupErr, 1024, "startupErr", Messages.getString("Msg.startupErr"));
@@ -59,7 +58,7 @@ public class Msg implements IValidatable {
 	}
 
 	public String getStartupErr() {
-		return !Validator.isEmpty(startupErr) ? startupErr : "An error occurred while starting the application.";
+		return !Validator.isEmpty(startupErr) ? startupErr : Messages.getString("Msg.startupErr");
 	}
 
 	public void setStartupErr(String startupErr) {
@@ -67,8 +66,7 @@ public class Msg implements IValidatable {
 	}
 
 	public String getBundledJreErr() {
-		return !Validator.isEmpty(bundledJreErr) ? bundledJreErr : "This application was configured to use a bundled Java Runtime"
-				+ " Environment but the runtime is missing or corrupted.";
+		return !Validator.isEmpty(bundledJreErr) ? bundledJreErr : Messages.getString("Msg.bundledJreErr");
 	}
 
 	public void setBundledJreErr(String bundledJreErr) {
@@ -76,25 +74,15 @@ public class Msg implements IValidatable {
 	}
 
 	public String getJreVersionErr() {
-		return !Validator.isEmpty(jreVersionErr) ? jreVersionErr : "This application requires a Java Runtime Environment.";
+		return !Validator.isEmpty(jreVersionErr) ? jreVersionErr : Messages.getString("Msg.jreVersionErr");
 	}
 
 	public void setJreVersionErr(String jreVersionErr) {
 		this.jreVersionErr = jreVersionErr;
 	}
 
-	public String getJreVersionErrWillDownload() {
-		return !Validator.isEmpty(jreVersionErr) ? jreVersionErr
-				: "This application requires Java Runtime Environment. It will be downloaded and installed now.";
-	}
-
-	public void setJreVersionErrWillDownload(String jreVersionErrWillDownload) {
-		this.jreVersionErrWillDownload = jreVersionErrWillDownload;
-	}
-
 	public String getLauncherErr() {
-		return !Validator.isEmpty(launcherErr) ? launcherErr : "The registry refers to a nonexistent Java Runtime Environment"
-				+ " installation or the runtime is corrupted.";
+		return !Validator.isEmpty(launcherErr) ? launcherErr : Messages.getString("Msg.launcherErr");
 	}
 
 	public void setLauncherErr(String launcherErr) {
@@ -102,7 +90,7 @@ public class Msg implements IValidatable {
 	}
 
 	public String getInstanceAlreadyExistsMsg() {
-		return !Validator.isEmpty(instanceAlreadyExistsMsg) ? instanceAlreadyExistsMsg : "An application instance is already running.";
+		return !Validator.isEmpty(instanceAlreadyExistsMsg) ? instanceAlreadyExistsMsg : Messages.getString("Msg.instanceAlreadyExistsMsg");
 	}
 
 	public void setInstanceAlreadyExistsMsg(String instanceAlreadyExistsMsg) {

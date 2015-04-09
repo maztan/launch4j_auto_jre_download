@@ -37,6 +37,9 @@
 package net.sf.launch4j.binding;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -237,6 +240,22 @@ public class Validator {
 				|| path.indexOf(':') != -1) {
 			signalViolation(property, msg);
 		}
+	}
+	
+	public static void checkUrl(String url, String property, String msg){
+		URL u = null;
+
+	    try {  
+	        u = new URL(url);  
+	    } catch (MalformedURLException e) {  
+	    	signalViolation(property, msg); 
+	    }
+
+	    try {  
+	        u.toURI();  
+	    } catch (URISyntaxException e) {  
+	    	signalViolation(property, msg); 
+	    }  
 	}
 
 	public static void signalLengthViolation(String property, String name,

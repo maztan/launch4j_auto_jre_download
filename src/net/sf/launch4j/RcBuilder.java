@@ -29,7 +29,7 @@
 	AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 /*
  * Created on 2005-04-24
@@ -58,9 +58,9 @@ public class RcBuilder {
 
 	// winnt.h
 	public static final int LANG_NEUTRAL = 0;
-	public static final int SUBLANG_NEUTRAL	= 0;
-	public static final int SUBLANG_DEFAULT	= 1;
-	public static final int SUBLANG_SYS_DEFAULT	= 2;
+	public static final int SUBLANG_NEUTRAL = 0;
+	public static final int SUBLANG_DEFAULT = 1;
+	public static final int SUBLANG_SYS_DEFAULT = 2;
 
 	// MANIFEST
 	public static final int MANIFEST = 1;
@@ -91,7 +91,7 @@ public class RcBuilder {
 	public static final int JDK_PREFERENCE = 18;
 	public static final int ENV_VARIABLES = 19;
 	public static final int PRIORITY_CLASS = 20;
-	public static final int	DOWNLOAD_URL = 	21;
+	public static final int DOWNLOAD_URL = 21;
 	public static final int SUPPORT_URL = 22;
 	public static final int MUTEX_NAME = 23;
 	public static final int INSTANCE_WINDOW_TITLE = 24;
@@ -102,14 +102,26 @@ public class RcBuilder {
 	public static final int BUNDLED_JRE_64_BIT = 29;
 	public static final int RUNTIME_BITS = 30;
 	public static final int RESTART_ON_CRASH = 31;
-	public static final int BUNDLED_JRE_AS_FALLBACK	= 32;
+	public static final int BUNDLED_JRE_AS_FALLBACK = 32;
+	private static final int JRE_DOWNLOAD_URL = 33;
+	private static final int DOWNLOAD_AND_INSTALL_JRE = 34;
+	private static final int JRE_DOWNLOAD_COOKIE = 35;
 
 	public static final int STARTUP_ERR = 101;
 	public static final int BUNDLED_JRE_ERR = 102;
 	public static final int JRE_VERSION_ERR = 103;
 	public static final int LAUNCHER_ERR = 104;
 	public static final int INSTANCE_ALREADY_EXISTS_MSG = 105;
-	private static final int JRE_VERSION_ERR_WILL_DOWNLOAD = 106;
+
+	public static final int MESSAGE_DOWNLOADING_JRE = 201;
+	public static final int MESSAGE_INSTALLING_JRE = 202;
+	public static final int MESSAGE_JRE_INSTALLED = 203;
+	public static final int MESSAGE_COULD_NOT_DOWNLOAD_JRE_INSTALLER = 204;
+	public static final int MESSAGE_LOOKING_FOR_JRE = 205;
+	public static final int MESSAGE_REQUIRED_VERSION_OF_JRE_NOT_FOUND = 206;
+	public static final int MESSAGE_QUESTION_IF_DOWNLOAD_AND_INSTALL_JRE = 207;
+	public static final int MESSAGE_COULD_NOT_FIND_OR_INSTALL_JRE = 208;
+	public static final int MESSAGE_STARTING_MAIN_INSTALLER = 209;
 
 	private final StringBuffer _sb = new StringBuffer();
 
@@ -164,7 +176,7 @@ public class RcBuilder {
 		if (c.isDontWrapJar() && c.getJar() != null) {
 			addWindowsPath(JAR, c.getJar().getPath());
 		}
-		
+
 		File file = Util.createTempFile("rc");
 
 		if ("MS932".equals(System.getProperty("file.encoding"))) {
@@ -175,7 +187,7 @@ public class RcBuilder {
 
 		return file;
 	}
-	
+
 	private void writeResourceFile(File file) throws IOException {
 		BufferedWriter w = null;
 
@@ -220,13 +232,8 @@ public class RcBuilder {
 		_sb.append(v.getFileVersion().replaceAll("\\.", ", "));
 		_sb.append("\nPRODUCTVERSION ");
 		_sb.append(v.getProductVersion().replaceAll("\\.", ", "));
-		_sb.append("\nFILEFLAGSMASK 0\n" +
-				"FILEOS 0x40000\n" +
-				"FILETYPE 1\n" +
-				"{\n" + 
-				" BLOCK \"StringFileInfo\"\n" +
-				" {\n" +
-				"  BLOCK \"040904E4\"\n" +	// English
+		_sb.append("\nFILEFLAGSMASK 0\n" + "FILEOS 0x40000\n" + "FILETYPE 1\n" + "{\n" + " BLOCK \"StringFileInfo\"\n" + " {\n"
+				+ "  BLOCK \"040904E4\"\n" + // English
 				"  {\n");
 
 		addVerBlockValue("CompanyName", v.getCompanyName());
@@ -237,13 +244,16 @@ public class RcBuilder {
 		addVerBlockValue("OriginalFilename", v.getOriginalFilename());
 		addVerBlockValue("ProductName", v.getProductName());
 		addVerBlockValue("ProductVersion", v.getTxtProductVersion());
-		_sb.append("  }\n }\nBLOCK \"VarFileInfo\"\n{\nVALUE \"Translation\", 0x0409, 0x04E4\n}\n}");     
+		_sb.append("  }\n }\nBLOCK \"VarFileInfo\"\n{\nVALUE \"Translation\", 0x0409, 0x04E4\n}\n}");
 	}
 
 	private void addJre(Jre jre) {
 		addWindowsPath(JRE_PATH, jre.getPath());
 		addTrue(BUNDLED_JRE_64_BIT, jre.getBundledJre64Bit());
 		addTrue(BUNDLED_JRE_AS_FALLBACK, jre.getBundledJreAsFallback());
+		addText(JRE_DOWNLOAD_URL, jre.getJreDownloadUrl());
+		addTrue(DOWNLOAD_AND_INSTALL_JRE, jre.isDownloadAndInstallJre());
+		addText(JRE_DOWNLOAD_COOKIE, jre.getJreDownloadCookie());
 		addText(JAVA_MIN_VER, jre.getMinVersion());
 		addText(JAVA_MAX_VER, jre.getMaxVersion());
 		addText(JDK_PREFERENCE, String.valueOf(jre.getJdkPreferenceIndex()));
@@ -263,7 +273,7 @@ public class RcBuilder {
 
 		addText(JVM_OPTIONS, options.toString());
 	}
-	
+
 	private void addSplash(Splash splash) {
 		if (splash == null) {
 			return;
@@ -275,7 +285,7 @@ public class RcBuilder {
 		addTrue(SPLASH_TIMEOUT_ERR, splash.isTimeoutErr());
 		addBitmap(SPLASH_BITMAP, splash.getFile());
 	}
-	
+
 	private void addMessages(Config c) {
 		Msg msg = c.getMessages();
 
@@ -286,8 +296,17 @@ public class RcBuilder {
 		addText(STARTUP_ERR, msg.getStartupErr());
 		addText(BUNDLED_JRE_ERR, msg.getBundledJreErr());
 		addText(JRE_VERSION_ERR, msg.getJreVersionErr());
-		addText(JRE_VERSION_ERR_WILL_DOWNLOAD, msg.getJreVersionErrWillDownload());
 		addText(LAUNCHER_ERR, msg.getLauncherErr());
+
+		addText(MESSAGE_DOWNLOADING_JRE, net.sf.launch4j.config.Messages.getString("Msg.downloadingJre"));
+		addText(MESSAGE_INSTALLING_JRE, net.sf.launch4j.config.Messages.getString("Msg.installingJre"));
+		addText(MESSAGE_JRE_INSTALLED, net.sf.launch4j.config.Messages.getString("Msg.jreInstalled"));
+		addText(MESSAGE_COULD_NOT_DOWNLOAD_JRE_INSTALLER, net.sf.launch4j.config.Messages.getString("Msg.couldNotDownloadJre"));
+		addText(MESSAGE_LOOKING_FOR_JRE, net.sf.launch4j.config.Messages.getString("Msg.lookingForJre"));
+		addText(MESSAGE_REQUIRED_VERSION_OF_JRE_NOT_FOUND, net.sf.launch4j.config.Messages.getString("Msg.requiredVersionOfJreNotFound"));
+		addText(MESSAGE_QUESTION_IF_DOWNLOAD_AND_INSTALL_JRE, net.sf.launch4j.config.Messages.getString("Msg.questionIfDownloadAndInstallJre"));
+		addText(MESSAGE_COULD_NOT_FIND_OR_INSTALL_JRE, net.sf.launch4j.config.Messages.getString("Msg.couldNotFindOrInstallJre"));
+		addText(MESSAGE_STARTING_MAIN_INSTALLER, net.sf.launch4j.config.Messages.getString("Msg.startingMainInstaller"));
 
 		if (c.getSingleInstance() != null) {
 			addText(INSTANCE_ALREADY_EXISTS_MSG, msg.getInstanceAlreadyExistsMsg());
@@ -328,7 +347,7 @@ public class RcBuilder {
 	}
 
 	/**
-	 * Stores path in Windows format with '\' separators. 
+	 * Stores path in Windows format with '\' separators.
 	 */
 	private void addWindowsPath(int id, String path) {
 		if (path == null || path.equals("")) {
@@ -337,8 +356,7 @@ public class RcBuilder {
 
 		_sb.append(id);
 		_sb.append(" RCDATA BEGIN \"");
-		_sb.append(path.replaceAll("\\\\", "\\\\\\\\")
-				.replaceAll("/", "\\\\\\\\"));
+		_sb.append(path.replaceAll("\\\\", "\\\\\\\\").replaceAll("/", "\\\\\\\\"));
 		_sb.append("\\0\" END\n");
 	}
 
@@ -349,8 +367,7 @@ public class RcBuilder {
 
 		_sb.append(id);
 		_sb.append(" 24 \"");
-		_sb.append(getPath(Util.getAbsoluteFile(
-				ConfigPersister.getInstance().getConfigPath(), manifest)));
+		_sb.append(getPath(Util.getAbsoluteFile(ConfigPersister.getInstance().getConfigPath(), manifest)));
 		_sb.append("\"\n");
 	}
 
@@ -361,8 +378,7 @@ public class RcBuilder {
 
 		_sb.append(id);
 		_sb.append(" ICON DISCARDABLE \"");
-		_sb.append(getPath(Util.getAbsoluteFile(
-				ConfigPersister.getInstance().getConfigPath(), icon)));
+		_sb.append(getPath(Util.getAbsoluteFile(ConfigPersister.getInstance().getConfigPath(), icon)));
 		_sb.append("\"\n");
 	}
 
@@ -373,15 +389,14 @@ public class RcBuilder {
 
 		_sb.append(id);
 		_sb.append(" BITMAP \"");
-		_sb.append(getPath(Util.getAbsoluteFile(
-				ConfigPersister.getInstance().getConfigPath(), bitmap)));
+		_sb.append(getPath(Util.getAbsoluteFile(ConfigPersister.getInstance().getConfigPath(), bitmap)));
 		_sb.append("\"\n");
 	}
-	
+
 	private String getPath(File f) {
 		return f.getPath().replaceAll("\\\\", "\\\\\\\\");
 	}
-	
+
 	private void addSpace(StringBuffer sb) {
 		int len = sb.length();
 
@@ -389,7 +404,7 @@ public class RcBuilder {
 			sb.append(' ');
 		}
 	}
-	
+
 	private void addVerBlockValue(String key, String value) {
 		_sb.append("   VALUE \"");
 		_sb.append(key);
@@ -403,8 +418,6 @@ public class RcBuilder {
 	}
 
 	private String escape(String text) {
-		return text.replace("\"", "\"\"")
-				.replace("\\", "\\\\")
-				.replace("\n", "\\r\\n");
+		return text.replace("\"", "\"\"").replace("\\", "\\\\").replace("\n", "\\r\\n");
 	}
 }

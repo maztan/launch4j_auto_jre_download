@@ -1,242 +1,274 @@
-/*
-	Launch4j (http://launch4j.sourceforge.net/)
-	Cross-platform Java application wrapper for creating Windows native executables.
+// GT_HelloWorldWin32.cpp
+// compile with: /D_UNICODE /DUNICODE /DWIN32 /D_WINDOWS /c
 
-	Copyright (c) 2004, 2015 Grzegorz Kowal
-							 Sylvain Mina (single instance patch)
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-
-	Except as contained in this notice, the name(s) of the above copyright holders
-	shall not be used in advertising or otherwise to promote the sale, use or other
-	dealings in this Software without prior written authorization.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
-*/
-
+#include <windows.h>
+#include <stdlib.h>
+#include <string.h>
+#include <tchar.h>
+#include <commctrl.h>
 #include "../resource.h"
 #include "../head.h"
-#include "guihead.h"
 
-extern FILE* hLog;
-extern PROCESS_INFORMATION processInformation;
+#define PBS_MARQUEE 0x08
 
+// The main window class name.
+
+const char *szWindowClass;
+
+// The string that appears in the application's title bar.
+const char *szTitle;
+
+HINSTANCE hInst = NULL;
+int nCmdShow;
+HWND progressBar;
+HWND textLabel;
 HWND hWnd;
-DWORD dwExitCode = 0;
-BOOL stayAlive = FALSE;
-BOOL splash = FALSE;
-BOOL splashTimeoutErr;
-BOOL waitForWindow;
-BOOL restartOnCrash = FALSE;
-int splashTimeout = DEFAULT_SPLASH_TIMEOUT;
+const char *szWindowClass = _T("win32app");
+const char *szTitle = _T("Glasscubes File Helper Installer");
 
-int APIENTRY WinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     LPSTR     lpCmdLine,
-                     int       nCmdShow)
-{
+// Forward declarations of functions included in this code module:
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+void progressBarUpdateCallback(double totoal, double downloaded,
+		BOOL newDownload);
+BOOL showMessage(int messageType, const char* messageText);
+DWORD WINAPI workerThread(LPVOID lpParam);
+LPSTR lpCmdLine;
+BOOL stayAlive;
+DWORD mainThreadId;
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+		LPSTR lpCmdLine_, int nCmdShow_) {
+
+	mainThreadId = GetCurrentThreadId();
+	hInst = hInstance; // Store instance handle in our global variable
+	nCmdShow = nCmdShow_;
+	lpCmdLine = lpCmdLine_;
+
+	// if we should restart on crash, we must also stay alive to check for crashes
+	BOOL restartOnCrash = FALSE;
+
+	stayAlive = restartOnCrash
+			|| (loadBool(GUI_HEADER_STAYS_ALIVE)
+					&& strstr(lpCmdLine, "--l4j-dont-wait") == NULL);
+
+	WNDCLASSEX wcex;
+
+	wcex.cbSize = sizeof(WNDCLASSEX);
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInst;
+	wcex.hIcon = LoadIcon(hInst, IDI_APPLICATION);
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
+	wcex.lpszMenuName = NULL;
+	wcex.lpszClassName = szWindowClass;
+	wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
+
+	if (!RegisterClassEx(&wcex)) {
+		MessageBox(NULL, _T("Call to RegisterClassEx failed!"),
+				_T("Glasscubes File Helper Installer"), 0);
+
+		return 1;
+	}
+
+	//compute window position (center on screen)
+	int windowWidth = 500;
+	int windowHeight = 100;
+	int screenX = GetSystemMetrics(SM_CXSCREEN);
+	int screenY = GetSystemMetrics(SM_CYSCREEN);
+
+	int windowPosX = (screenX / 2) - (windowWidth / 2);
+	int windowPosY = (screenY / 2) - (windowHeight / 2);
+
+	// The parameters to CreateWindow explained:
+	// szWindowClass: the name of the application
+	// szTitle: the text that appears in the title bar
+	// WS_OVERLAPPEDWINDOW: the type of window to create
+	// CW_USEDEFAULT, CW_USEDEFAULT: initial position (x, y)
+	// 500, 100: initial size (width, length)
+	// NULL: the parent of this window
+	// NULL: this application does not have a menu bar
+	// hInstance: the first parameter from WinMain
+	// NULL: not used in this application
+	hWnd = CreateWindow(
+			szWindowClass,
+			szTitle,
+			WS_OVERLAPPEDWINDOW&~WS_MAXIMIZEBOX,
+			windowPosX, windowPosY,
+			windowWidth, windowHeight,
+			NULL,
+			NULL,
+			hInst,
+			NULL
+	);
+
+	if (!hWnd) {
+		MessageBox(NULL, _T("Call to CreateWindow failed!"),
+				_T("Glasscubes File Helper Installer"), 0);
+
+		return 1;
+	}
+
+	int cyVScroll = GetSystemMetrics(SM_CYVSCROLL);
+
+	RECT client_rectangle;
+	GetClientRect(hWnd, &client_rectangle);
+
+	//create progress bar
+
+	progressBar = CreateWindowEx(
+	WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE, PROGRESS_CLASS, NULL,
+	WS_CHILD | WS_VISIBLE | PBS_MARQUEE, client_rectangle.left,
+			client_rectangle.bottom - cyVScroll, client_rectangle.right,
+			cyVScroll, hWnd, NULL, hInst, NULL);
+
+	//SetWindowLong(progressBar, GWL_STYLE,
+	//GetWindowLong(progressBar, GWL_STYLE) | PBS_MARQUEE);
+	LONG_PTR style = GetWindowLongPtr(progressBar, GWL_STYLE);
+	SetWindowLongPtr(progressBar, GWL_STYLE, style | PBS_MARQUEE);
+
+	//label will fill the whole window except the part where progress bar will reside
+	textLabel =
+	CreateWindow("STATIC", "Initializing...", WS_VISIBLE | WS_CHILD | SS_CENTER,
+			client_rectangle.left,client_rectangle.top,client_rectangle.right,
+			client_rectangle.bottom - cyVScroll, hWnd, NULL, hInst, NULL);
+
+	//SendMessage(progressBar, PBM_SETRANGE, 0, (LPARAM) MAKELPARAM(0, 599));
+	//SendMessage(progressBar, PBM_SETPOS, 0, 0);
+	//SetTimer(hWnd, 0, 100, NULL);
+
+	// The parameters to ShowWindow explained:
+	// hWnd: the value returned from CreateWindow
+	// nCmdShow: the fourth parameter from WinMain
+	ShowWindow(hWnd, nCmdShow);
+	//UpdateWindow(hWnd);
+	setJreDownloadProgressCallback(progressBarUpdateCallback);
+	setDisplayMessageCallback(showMessage);
+
+	//MessageBox(hWnd, "execute()", "Debug", MB_OK);
+
+	HANDLE workerThreadHandle = CreateThread( NULL, 0,
+			workerThread, NULL, 0, NULL);
+	if (workerThreadHandle == NULL) {
+		ExitProcess(5);
+	}
+
+	// Wait until all threads have terminated.
+	// WaitForMultipleObjects( 3,
+	//   Array_Of_Thread_Handles, TRUE, INFINITE);
+	//MessageBox(NULL, "GUI Exiting", "Debug", MB_OK);
+
+	// Main message loop:
+	MSG msg;
+	while (GetMessage(&msg, NULL, 0, 0)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	return (int) msg.wParam;
+}
+
+DWORD WINAPI workerThread(LPVOID lpParam) {
+
 	int result = prepare(lpCmdLine);
 
-	if (result == ERROR_ALREADY_EXISTS)
-	{
-		HWND handle = getInstanceWindow();
-		ShowWindow(handle, SW_SHOW);
-		SetForegroundWindow(handle);
+	if (result == ERROR_ALREADY_EXISTS) {
+		//HWND handle = getInstanceWindow();
+		//ShowWindow(handle, SW_SHOW);
+		//SetForegroundWindow(handle);
 		closeLogFile();
 		return 2;
 	}
 
-	if (result != TRUE)
-	{
+	if (result != TRUE) {
 		signalError();
 		return 1;
 	}
 
-	splash = loadBool(SHOW_SPLASH)
-			&& strstr(lpCmdLine, "--l4j-no-splash") == NULL;
-	restartOnCrash = loadBool(RESTART_ON_CRASH);
-
-	// if we should restart on crash, we must also stay alive to check for crashes
-	stayAlive = restartOnCrash ||
-			  (loadBool(GUI_HEADER_STAYS_ALIVE)
-			&& strstr(lpCmdLine, "--l4j-dont-wait") == NULL);
-			
-	if (splash || stayAlive)
-	{
-		hWnd = CreateWindowEx(WS_EX_TOOLWINDOW, "STATIC", "",
-				WS_POPUP | SS_BITMAP,
-				0, 0, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
-		if (splash)
-		{
-			char timeout[10] = {0};
-			if (loadString(SPLASH_TIMEOUT, timeout))
-			{
-				splashTimeout = atoi(timeout);
-				if (splashTimeout <= 0 || splashTimeout > MAX_SPLASH_TIMEOUT)
-				{
-					splashTimeout = DEFAULT_SPLASH_TIMEOUT;
-				}
-			}
-			splashTimeoutErr = loadBool(SPLASH_TIMEOUT_ERR)
-					&& strstr(lpCmdLine, "--l4j-no-splash-err") == NULL;
-			waitForWindow = loadBool(SPLASH_WAITS_FOR_WINDOW);
-			HANDLE hImage = LoadImage(hInstance,	// handle of the instance containing the image
-					MAKEINTRESOURCE(SPLASH_BITMAP),	// name or identifier of image
-					IMAGE_BITMAP,					// type of image
-					0,								// desired width
-					0,								// desired height
-					LR_DEFAULTSIZE);
-			if (hImage == NULL)
-			{
-				debug("Splash bitmap not found!\n");
-				signalError();
-				return 1;
-			}
-			SendMessage(hWnd, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM) hImage);
-			RECT rect;
-			GetWindowRect(hWnd, &rect);
-			int x = (GetSystemMetrics(SM_CXSCREEN) - (rect.right - rect.left)) / 2;
-			int y = (GetSystemMetrics(SM_CYSCREEN) - (rect.bottom - rect.top)) / 2;
-			SetWindowPos(hWnd, HWND_TOP, x, y, 0, 0, SWP_NOSIZE);
-			ShowWindow(hWnd, nCmdShow);
-			UpdateWindow (hWnd);
-		}
+	DWORD exitCode = 0;
+	if (!execute(FALSE, &exitCode)) {
+		signalError();
+		return 1;
 	}
 
-	do
-	{
-		if (splash || stayAlive)
-		{
-			if (!SetTimer (hWnd, ID_TIMER, 1000 /* 1s */, TimerProc))
-			{
-				signalError();
-				return 1;
-			}
-		}
-
-		if (!execute(FALSE, &dwExitCode))
-		{
-			signalError();
-			return 1;
-		}
-
-		if (!(splash || stayAlive))
-		{
-			debug("Exit code:\t0\n");
-			closeProcessHandles();
-			closeLogFile();
-			return 0;
-		}
-	
-		MSG msg;
-		while (GetMessage(&msg, NULL, 0, 0))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		
-		if (restartOnCrash && dwExitCode != 0)
-		{
-	  		debug("Exit code:\t%d, restarting the application!\n", dwExitCode);
-  		}
-
-  		closeProcessHandles();
-	} while (restartOnCrash && dwExitCode != 0);
-
-	debug("Exit code:\t%d\n", dwExitCode);
-	closeLogFile();
-	return dwExitCode;
-}
-
-HWND getInstanceWindow()
-{
-	char windowTitle[STR];
-	char instWindowTitle[STR] = {0};
-	if (loadString(INSTANCE_WINDOW_TITLE, instWindowTitle))
-	{
-		HWND handle = FindWindowEx(NULL, NULL, NULL, NULL); 
-		while (handle != NULL)
-		{
-			GetWindowText(handle, windowTitle, STR - 1);
-			if (strstr(windowTitle, instWindowTitle) != NULL)
-			{
-				return handle;
-			}
-			else
-			{
-				handle = FindWindowEx(NULL, handle, NULL, NULL);
-			}
-		}
+	if(!stayAlive){
+		PostThreadMessage(mainThreadId, WM_QUIT, 0, 0);
 	}
-	return NULL;   
+
+	return exitCode;
 }
 
-BOOL CALLBACK enumwndfn(HWND hwnd, LPARAM lParam)
-{
-	DWORD processId;
-	GetWindowThreadProcessId(hwnd, &processId);
-	if (processInformation.dwProcessId == processId)
-	{
-		LONG styles = GetWindowLong(hwnd, GWL_STYLE);
-		if ((styles & WS_VISIBLE) != 0)
-		{
-			splash = FALSE;
-			ShowWindow(hWnd, SW_HIDE);
+//
+//  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
+//
+//  PURPOSE:  Processes messages for the main window.
+//
+//  WM_PAINT    - Paint the main window
+//  WM_DESTROY  - post a quit message and return
+//
+//
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	//PAINTSTRUCT ps;
+	//HDC hdc;
+	//TCHAR greeting[] = _T("Hello, World!");
+
+	switch (message) {
+	/*case WM_PAINT:
+	 hdc = BeginPaint(hWnd, &ps);
+
+	 // Here your application is laid out.
+	 // For this introduction, we just print out "Hello, World!"
+	 // in the top left corner.
+	 TextOut(hdc, 5, 5, greeting, _tcslen(greeting));
+	 // End application-specific layout section.
+
+	 EndPaint(hWnd, &ps);
+	 break;
+	 / *case WM_TIMER:
+	 pos = SendMessage(progressBar, PBM_GETPOS, 0, 0) + 1;
+	 SendMessage(progressBar, PBM_SETPOS, pos, 0);
+	 if (pos == 600) {
+	 SendMessage(progressBar, PBM_SETPOS, 0, 0);
+	 }
+	 break;*/
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+		break;
+	}
+
+	return 0;
+}
+
+void progressBarUpdateCallback(double total, double downloaded,
+		BOOL newDownload) {
+	if (newDownload) {
+		SendMessage(progressBar, PBM_SETRANGE, 0, (LPARAM) MAKELPARAM(0, 100));
+		SendMessage(progressBar, PBM_SETPOS, 0, 0);
+	}
+
+	SendMessage(progressBar, PBM_SETPOS, (int) (downloaded * 100 / total), 0);
+}
+
+BOOL showMessage(int messageType, const char* messageText) {
+	switch (messageType) {
+	case DISPLAY_MESSAGE_LABEL:
+		SetWindowText(textLabel, TEXT(messageText));
+		RedrawWindow(textLabel, NULL, NULL, RDW_ERASE);
+		return TRUE;
+	case DISPLAY_MESSAGE_DIALOG_YES_NO:
+		if (MessageBox(hWnd,
+				"Do you want this installer to try to download\n and install required Java Runtime Environment?",
+				"", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+			return TRUE;
+		} else {
 			return FALSE;
 		}
 	}
-	return TRUE;
-}
 
-VOID CALLBACK TimerProc(
-	HWND hwnd,			// handle of window for timer messages
-	UINT uMsg,			// WM_TIMER message
-	UINT idEvent,		// timer identifier
-	DWORD dwTime) 		// current system time
-{
-	if (splash)
-	{
-		if (splashTimeout == 0)
-		{
-			splash = FALSE;
-			ShowWindow(hWnd, SW_HIDE);
-			if (waitForWindow && splashTimeoutErr)
-			{
-				KillTimer(hwnd, ID_TIMER);
-				debug("wait for window = %i, splashTimeoutErr = %i\n", waitForWindow, splashTimeoutErr);
-				signalError();
-				PostQuitMessage(0);
-			}
-		}
-		else
-		{
-			splashTimeout--;
-			if (waitForWindow)
-			{
-				EnumWindows(enumwndfn, 0);
-			}
-		}
-	}
-
-	GetExitCodeProcess(processInformation.hProcess, &dwExitCode);
-	if (dwExitCode != STILL_ACTIVE
-			|| !(splash || stayAlive))
-	{
-		KillTimer(hWnd, ID_TIMER);
-		PostQuitMessage(0);
-	}
+	return FALSE;
 }
