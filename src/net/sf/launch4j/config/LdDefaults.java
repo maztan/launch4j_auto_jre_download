@@ -43,8 +43,10 @@ public class LdDefaults {
 
 	public static final List<String> GUI_HEADER_OBJECTS = Arrays.asList(new String[] {
 			"w32api/crt2.o",
+			"w32api/crtbegin.o",
 			"head/guihead.o",
-			"head/head.o" });
+			"head/head.o",
+			"w32api/crtend.o"});
 
 	public static final List<String> CONSOLE_HEADER_OBJECTS = Arrays.asList(new String[] {
 			"w32api/crt2.o",
@@ -52,13 +54,20 @@ public class LdDefaults {
 			"head/head.o"});
 
 	public static final List<String> LIBS = Arrays.asList(new String[] {
-			"w32api/libmingw32.a",
+			/*"w32api/libmingw32.a",
 			"w32api/libgcc.a",
 			"w32api/libmsvcrt.a",
 			"w32api/libkernel32.a",
 			"w32api/libuser32.a",
 			"w32api/libadvapi32.a",
 			"w32api/libshell32.a",
-			//"head_src/curl/lib/libcurl.a",
-			"head_src/curl/lib/libcurldll.a"});
+			/ *"head_src/curl/lib/libcurl.a",
+			"head_src/curl/lib/libssl.a",
+			"head_src/curl/lib/libcrypto.a",
+			"head_src/curl/lib/librtmp.a",
+			"head_src/curl/lib/libidn.a",
+			"head_src/curl/lib/libssh2.a",
+			"head_src/curl/lib/libz.a",*/
+			
+	});
 }

@@ -34,6 +34,8 @@
 #define _WIN32_WINNT 0x0501
 #define WIN32_LEAN_AND_MEAN		// VC - Exclude rarely-used stuff from Windows headers
 
+#define CURL_STATICLIB
+
 // Windows Header Files:
 #include <windows.h>
 
@@ -49,8 +51,8 @@
 #include <sys/stat.h>
 #include <io.h>
 #include <process.h>
+//#include <winbase.h>
 #include <curl/curl.h>
-#include <winbase.h>
 
 #define DISPLAY_MESSAGE_LABEL 0
 #define DISPLAY_MESSAGE_DIALOG_YES_NO 1

@@ -104,6 +104,11 @@ public class Builder {
 					.add("--dynamicbase")
 					.add("--nxcompat")
 					.add("--no-seh")
+					.add("-Bstatic")
+					.add("-defsym CURL_STATICLIB=1")
+					.add("-Lhead/curl/lib")
+					.add("-Lw32api")
+					//.add("-DCURL_STATICLIB")
 					.add((c.getHeaderType().equals(Config.GUI_HEADER))
 							? "--subsystem windows" : "--subsystem console")
 					.add("-s")		// strip symbols
@@ -111,7 +116,65 @@ public class Builder {
 					.addAbsFile(ro)
 					.addFiles(c.getLibs())
 					.add("-o")
-					.addAbsFile(outfile);
+					.addAbsFile(outfile)
+					.add("-lcurl")
+					.add("-lssl")
+					.add("-lcrypto")
+					.add("-lgdi32")
+					.add("-lrtmp")
+					.add("-lwinmm")
+					.add("-lwldap32")
+					.add("-lidn")
+					.add("-lssh2")
+					.add("-lz")
+					.add("-lws2_32")
+					.add("-lstdc++")
+					.add("-lmingw32")
+					.add("-lgcc")
+					.add("-lmoldname")
+					.add("-lmingwex")
+					.add("-lmsvcrt")
+					.add("-ladvapi32")
+					.add("-lshell32")
+					.add("-luser32")
+					.add("-lkernel32")
+					.add("-lmingw32")
+					.add("-lgcc")
+					.add("-lgcc_eh")
+					.add("-lmoldname")
+					.add("-lmingwex")
+					.add("-lmsvcrt");
+					
+				//in that order:
+				//-lcurl -lssl -lcrypto -lgdi32 -lrtmp -lwinmm -lwldap32 -lidn -lssh2 -lz -lws2_32
+					/*"w32api/libmingw32.a",
+			"w32api/libgcc.a",
+			"w32api/libmsvcrt.a",
+			"w32api/libkernel32.a",
+			"w32api/libuser32.a",
+			"w32api/libadvapi32.a",
+			"w32api/libshell32.a",*/
+					/*.add("-lcurl")
+					.add("-lgcc")
+					.add("-lmsvcrt")
+					.add("-lkernel32")
+					.add("-luser32")
+					.add("-ladvapi32")
+					.add("-shell32")
+					.add("-lshlwapi")
+					 //  
+					//.add("-lShlwapi")
+					.add("-lssl")
+					.add("-lcrypto")
+					.add("-lgdi32")
+					.add("-lrtmp")
+					.add("-lwinmm")
+					.add("-lwldap32")
+					.add("-lidn")
+					.add("-lssh2")
+					.add("-lz")
+					.add("-lws2_32");*/
+					
 			_log.append(Messages.getString("Builder.linking"));
 			ldCmd.exec(_log);
 
