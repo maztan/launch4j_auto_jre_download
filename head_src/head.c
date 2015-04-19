@@ -28,7 +28,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
 #include "resource.h"
 #include "head.h"
 
@@ -251,7 +250,22 @@ BOOL downloadAndInstallJre() {
 			debug("Running %s\n", fileNamePart);
 			//launch the installer in silent mode
 			displayMessage(DISPLAY_MESSAGE_LABEL, msgInstallingJRE);
-			ShellExecute(NULL, "open", fileNamePart, "/s", NULL, SW_SHOWNORMAL);
+
+			//execute the installer and wait for it to finish
+			SHELLEXECUTEINFO jreInstallerExecInfo = {0};
+			jreInstallerExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+			jreInstallerExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+			jreInstallerExecInfo.hwnd = NULL;
+			jreInstallerExecInfo.lpVerb = NULL;
+			jreInstallerExecInfo.lpFile = fileNamePart;
+			jreInstallerExecInfo.lpParameters = "/s";
+			jreInstallerExecInfo.lpDirectory = NULL;
+			jreInstallerExecInfo.nShow = SW_SHOWNORMAL;
+			jreInstallerExecInfo.hInstApp = NULL;
+			ShellExecuteEx(&jreInstallerExecInfo);
+			WaitForSingleObject(jreInstallerExecInfo.hProcess,INFINITE);
+
+			//ShellExecute(NULL, "open", fileNamePart, "/s", NULL, SW_SHOWNORMAL);
 			displayMessage(DISPLAY_MESSAGE_LABEL, msgJREInstalled);
 			//TODO: remove the downloaded installer if it executed properly?
 			debug("Installation of %s ended\n", fileNamePart);
@@ -832,18 +846,18 @@ BOOL jreSearch(const char *exePath, const int pathLen) {
 	displayMessage(DISPLAY_MESSAGE_LABEL, msgLookingForJre);
 
 	if (search.bundledJreAsFallback) {
-		debug("bundled JRE as fallback");
+		debug("bundled JRE as fallback\n");
 		//first look for installed
-		debug("looking for installed JRE");
+		debug("looking for installed JRE\n");
 		if (!installedJreSearch()) {
-			debug("installed JRE not found");
+			debug("installed JRE not found\n");
 			//then look for bundled (as fallback)
-			debug("looking for bundled JRE");
+			debug("looking for bundled JRE\n");
 			result = bundledJreSearch(exePath, pathLen);
 			if (!result) {
-				debug("bundled JRE not found");
+				debug("bundled JRE not found\n");
 				if (search.downloadAndInstallJre) {
-					debug("trying to download and install JRE");
+					debug("trying to download and install JRE\n");
 					displayMessage(DISPLAY_MESSAGE_LABEL, msgReqiredJreVersionNotFound);
 
 					if (displayMessage(DISPLAY_MESSAGE_DIALOG_YES_NO, msgQuestionIfDownloadAndInstallJre)
@@ -871,7 +885,7 @@ BOOL jreSearch(const char *exePath, const int pathLen) {
 					debug("trying to download and install JRE\n");
 					displayMessage(DISPLAY_MESSAGE_LABEL, msgReqiredJreVersionNotFound);
 					if (displayMessage(DISPLAY_MESSAGE_DIALOG_YES_NO,
-							"Do you want the installer to try download and install Java Runtime Environment?")
+							"Glasscubes File Helper needs to download and install Java, is that OK?")
 							&& downloadAndInstallJre()) {
 						//if the JRE was installed, let's look for it
 						result = installedJreSearch();
@@ -882,7 +896,7 @@ BOOL jreSearch(const char *exePath, const int pathLen) {
 	}
 
 	if (!result) {
-		debug("no JRE found")
+		debug("no JRE found\n")
 		displayMessage(DISPLAY_MESSAGE_LABEL, msgCouldNotFindOrInstallJre);
 		createJreSearchError();
 	}
